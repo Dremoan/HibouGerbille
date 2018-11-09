@@ -14,8 +14,9 @@ namespace HibouGerbille
         [SerializeField] private Animator animHowl;
         [SerializeField] private float randomWait;
         [SerializeField] private int countIdle = 0;
+        [SerializeField] private bool canIdle = true;
 
-	    void Update ()
+        void Update ()
         {
             Behaviour();
         }
@@ -25,7 +26,10 @@ namespace HibouGerbille
             switch (howlActionsEnum)
             {
             case HowlActions.IdleDefault:
+                    if(canIdle)
+                    {
                     WaitIdle();
+                    }
                 break;
             case HowlActions.ChangeIdle:
                     PickRandomIdle();
@@ -46,6 +50,8 @@ namespace HibouGerbille
 
         void WaitIdle()
         {
+            canIdle = false;
+            animHowl.SetBool("Return", false);
             StartCoroutine(WaitIdleCoroutine());
         }
 
@@ -53,10 +59,14 @@ namespace HibouGerbille
         {
             countIdle = Random.Range(1, 4);
             animHowl.SetInteger("CountIdle", countIdle);
+            animHowl.SetBool("Return", true);
+            countIdle = 0;
+            canIdle = true;
         }
 
         IEnumerator WaitIdleCoroutine()
         {
+            
             randomWait = Random.Range(0.5f, 1.5f);
             yield return new WaitForSeconds(randomWait);
             ChangeState(HowlActions.ChangeIdle);
