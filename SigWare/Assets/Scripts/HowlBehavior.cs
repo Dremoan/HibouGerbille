@@ -8,79 +8,95 @@ namespace HibouGerbille
     public class HowlBehavior : MonoBehaviour
     {
 
-        public enum HowlActions {IdleDefault, ChangeIdle, Turn, Attack}
-        public HowlActions howlActionsEnum;
-        public AudioTrackHowl[] audioTracks;
+        [SerializeField] private AudioTabListener[] audioTab;
+        [SerializeField] private AudioSource audioSource;
         [SerializeField] private Animator animHowl;
-        [SerializeField] private float randomWait;
-        [SerializeField] private int countIdle = 0;
-        [SerializeField] private bool canIdle = true;
+        [SerializeField] private bool launchMusic = true;
 
-        void Update ()
-        {
-            Behaviour();
-        }
+        private int countIdle = 0;
+        private int randomClipItem;
+        private float randomWait;
 
-     void Behaviour()
+
+
+
+        void Update()
         {
-            switch (howlActionsEnum)
+            if(launchMusic)
             {
-            case HowlActions.IdleDefault:
-                    if(canIdle)
-                    {
-                    WaitIdle();
-                    }
-                break;
-            case HowlActions.ChangeIdle:
-                    PickRandomIdle();
-                break;
-            case HowlActions.Turn:
-                break;
-            case HowlActions.Attack:
-                break;
-            default:
-                break;
+                StopAllCoroutines();
+                StartCoroutine(TurnBackCoroutine());
             }
         }
 
-        void ChangeState(HowlActions nextAction)
+        public void WaitBeforeChangeIdle()
         {
-            howlActionsEnum = nextAction;
+            //StopAllCoroutines();
+            StartCoroutine(ChangeIdle());
         }
 
-        void WaitIdle()
+        public void WaitBeforeReturn()
         {
-            canIdle = false;
+            //StopAllCoroutines();
+            StartCoroutine(ReturnDefaultIdle());
+        }
+
+        public void WaitBeforeDefaultIdle()
+        {
+            StartCoroutine(IdleTurnToDefault());
+        }
+
+
+        public void ResetValues()
+        {
+            Debug.Log("ResetValues");
             animHowl.SetBool("Return", false);
-            StartCoroutine(WaitIdleCoroutine());
-        }
-
-        void PickRandomIdle()
-        {
-            countIdle = Random.Range(1, 4);
-            animHowl.SetInteger("CountIdle", countIdle);
-            animHowl.SetBool("Return", true);
             countIdle = 0;
-            canIdle = true;
+            animHowl.SetInteger("CountIdle", countIdle);
         }
 
-        IEnumerator WaitIdleCoroutine()
+        IEnumerator ChangeIdle()
         {
-            
             randomWait = Random.Range(0.5f, 1.5f);
             yield return new WaitForSeconds(randomWait);
-            ChangeState(HowlActions.ChangeIdle);
+            countIdle = Random.Range(1, 4);
+            animHowl.SetInteger("CountIdle", countIdle);
         }
 
+        IEnumerator ReturnDefaultIdle()
+        {
+            randomWait = Random.Range(0.5f, 1.5f);
+            yield return new WaitForSeconds(randomWait);
+            animHowl.SetBool("Return", true);
+        }
 
+        IEnumerator TurnBackCoroutine()
+        {
+            launchMusic = false;
+            randomClipItem = Random.Range(0, audioTab.Length);
+            audioSource.PlayOneShot(audioTab[randomClipItem].audioClip, 1);
+            yield return new WaitForSeconds(audioTab[randomClipItem].clipDuration);
+            audioSource.Stop();
+            animHowl.SetBool("Return", true);
+            yield return new WaitForSeconds(Random.Range(0.5f, 2.5f));
+            animHowl.SetBool("Turning", true);
+        }
 
-
-     }
+        IEnumerator IdleTurnToDefault()
+        {
+            countIdle = 0;
+            yield return new WaitForSeconds(Random.Range(3, 5));
+            animHowl.SetBool("Turning", false);
+            launchMusic = true;
+        }
+    }
 
     [System.Serializable]
-    public class AudioTrackHowl : MonoBehaviour
+    public class AudioTabListener
     {
-        public AudioClip[] audioClips;
-        private float Bjr;
+        [SerializeField] private string clipName;
+        [SerializeField] public AudioClip audioClip;
+        [SerializeField] public float clipDuration;
+
     }
 }
