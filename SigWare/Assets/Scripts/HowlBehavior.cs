@@ -113,8 +113,10 @@ namespace HibouGerbille
 
         IEnumerator IdleDefaultBeforeTurning()
         {
+            decreaseVolume = true;
             animHowl.SetBool("Return", true);
             float randomTurnWait = Random.Range(0.25f, 1.5f);
+            audioSource.Stop();
             Debug.Log(randomTurnWait);
             yield return new WaitForSeconds(randomTurnWait);
             animHowl.SetBool("Turning", true);
