@@ -8,26 +8,26 @@ namespace HibouGerbille
     [System.Serializable]
     public class HowlBehavior : MonoBehaviour
     {
-
+        [Header("=== References ===")]
         [SerializeField] private AudioTabListener[] audioTab;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private Animator animHowl;
-        [SerializeField] private bool launchMusic = true;
-        [SerializeField] private bool increaseVolume = false;
-        [SerializeField] private bool decreaseVolume = false;
-
         [SerializeField] private GameObject timelineDeath;
         [SerializeField] private GerbilBehaviour gerbilScript;
-        [SerializeField] private Image detectionHowlCircle;
-        [SerializeField] private GameObject exclamationFolder;
-        [SerializeField] private Animator detectionAnim;
-        private bool detected;
-        private int countIdle = 0;
+        private bool launchMusic = true;
         private int randomClipItem;
+        private bool increaseVolume = false;
+        private bool decreaseVolume = false;
+
+
+        [Header("=== Detection UI ===")]
+        [SerializeField] private Image detectionHowlCircle;
+        [SerializeField] private GameObject exclamationFolderNoiseBar;
+        [SerializeField] private GameObject exclamationFolderTurnHowl;
+        [SerializeField] private Animator exclamationFolderAnim;
+        [SerializeField] private Vector3 exclamationFolderTurnHowlStartPos;
+        [HideInInspector] public bool detected;
         private float randomWait;
-
-
-
 
         void Update()
         {
@@ -47,19 +47,20 @@ namespace HibouGerbille
                 VolumeDown();
             }
 
+            if(!detected)
+            {
             FillingDetectionCircle();
-        }
+            }
 
-        public void WaitBeforeChangeIdle()
-        {
-            //StopAllCoroutines();
-            StartCoroutine(ChangeIdle());
-        }
-
-        public void WaitBeforeReturn()
-        {
-            //StopAllCoroutines();
-            StartCoroutine(ReturnDefaultIdle());
+            if(exclamationFolderTurnHowl.activeInHierarchy)
+            {
+                detectionHowlCircle.fillAmount = 0f;
+                exclamationFolderNoiseBar.SetActive(false);
+            }
+            else
+            {
+            ExclamationFolderActivation();
+            }
         }
 
         public void WaitBeforeDefaultIdle()
@@ -67,36 +68,12 @@ namespace HibouGerbille
             StartCoroutine(IdleTurnToDefault());
         }
 
-
-        public void ResetValues()
-        {
-            Debug.Log("ResetValues");
-            animHowl.SetBool("Return", false);
-            countIdle = 0;
-            animHowl.SetInteger("CountIdle", countIdle);
-        }
-
-        IEnumerator ChangeIdle()
-        {
-            randomWait = Random.Range(0.5f, 1.5f);
-            yield return new WaitForSeconds(randomWait);
-            countIdle = Random.Range(1, 4);
-            animHowl.SetInteger("CountIdle", countIdle);
-        }
-
-        IEnumerator ReturnDefaultIdle()
-        {
-            randomWait = Random.Range(0.5f, 1.5f);
-            yield return new WaitForSeconds(randomWait);
-            animHowl.SetBool("Return", true);
-        }
-
         IEnumerator TurnBackCoroutine()
         {
             launchMusic = false;
             randomClipItem = Random.Range(0, audioTab.Length);
             audioSource.PlayOneShot(audioTab[randomClipItem].audioClip);
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(.5f);
             increaseVolume = true;
             yield return new WaitForSeconds(audioTab[randomClipItem].clipDuration);
             decreaseVolume = true;
@@ -105,18 +82,18 @@ namespace HibouGerbille
 
         IEnumerator IdleTurnToDefault()
         {
-            countIdle = 0;
-            yield return new WaitForSeconds(Random.Range(3, 5));
+            yield return new WaitForSeconds(Random.Range(1.5f, 3f));
             animHowl.SetBool("Turning", false);
             launchMusic = true;
         }
 
         IEnumerator IdleDefaultBeforeTurning()
         {
-            animHowl.SetBool("Return", true);
-            float randomTurnWait = Random.Range(0.25f, 1.5f);
-            Debug.Log(randomTurnWait);
+            exclamationFolderTurnHowl.transform.localPosition = exclamationFolderTurnHowlStartPos;
+            exclamationFolderTurnHowl.SetActive(true);
+            float randomTurnWait = Random.Range(1f, 2f);
             yield return new WaitForSeconds(randomTurnWait);
+            exclamationFolderAnim.SetTrigger("Detected");
             animHowl.SetBool("Turning", true);
             detected = false;
         }
@@ -146,27 +123,36 @@ namespace HibouGerbille
 
         void FillingDetectionCircle()
         {
-            if(gerbilScript.detecting == true && !detected)
+            if(gerbilScript.detecting == true)
             {
                 detectionHowlCircle.fillAmount += 0.01f;
-                exclamationFolder.SetActive(true);
-
             }
             
             if(gerbilScript.detecting == false)
             {
                 detectionHowlCircle.fillAmount -= 0.01f;
-                exclamationFolder.SetActive(false);
 
             }
 
             if (detectionHowlCircle.fillAmount > 0.95f && !detected)
             {
                 detectionHowlCircle.fillAmount = 0f;
+                gerbilScript.noiseBarMultiplier = 5f;
                 detected = true;
-                detectionAnim.SetTrigger("Detected");
                 StopAllCoroutines();
                 StartCoroutine(IdleDefaultBeforeTurning());
+            }
+        }
+
+        void ExclamationFolderActivation()
+        {
+            if(detectionHowlCircle.fillAmount > 0.1f && !detected)
+            {
+                exclamationFolderNoiseBar.SetActive(true);
+            }
+            else
+            {
+                exclamationFolderNoiseBar.SetActive(false);
             }
         }
     }

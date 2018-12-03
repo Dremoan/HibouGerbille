@@ -7,29 +7,41 @@ namespace HibouGerbille
 {
     public class GerbilBehaviour : MonoBehaviour
     {
-
+        [Header("=== Noise Bar Gestion ===")]
         [Range(0.1f, 1f)]
         [SerializeField] private float waitBeforeNoiseBarDecrease = 1f;
         [Range(0.0025f, 0.005f)]
         [SerializeField] private float decreaseAmount;
         [SerializeField] private Image noiseBar;
+        [HideInInspector] public float noiseBarMultiplier = 1f;
+        [HideInInspector] public bool detecting;
+        private bool noiseBarDecrease = true;
 
+        [Header("=== Gerbil Movement ===")]
         [Range(0.1f,0.5f)]
         [SerializeField] private float movingTime = 1f;
         [SerializeField] private float returnMoveDuration;
         [SerializeField] private AnimationCurve curveSpeed;
         [SerializeField] private AudioClip mouseSqueak;
-        [SerializeField] private AudioSource sourceAudio;
-        [SerializeField] private GameObject timelineDeath;
-
         private bool isMoving = false;
         private bool canMove = true;
-        private bool noiseBarDecrease = true;
         private float percentMove;
         private Vector3 StartPos;
         private Vector3 EndPos;
         public Vector3 distanceMoving;
-        [HideInInspector] public bool detecting;
+
+
+        [Header("=== Gerbil Animations ===")]
+        [SerializeField] private Animator gerbilAnimator;
+        private int countPoses;
+
+
+
+        [Header("=== Features ===")]
+        [SerializeField] private AudioSource sourceAudio;
+        [SerializeField] private GameObject timelineDeath;
+        [SerializeField] public HowlBehavior howlScript;
+
 
         private void Start()
         {
@@ -38,7 +50,7 @@ namespace HibouGerbille
         }
         void Update()
         {
-            if (Input.GetMouseButtonDown(0) && !isMoving && canMove)
+            if (Input.GetMouseButtonUp(0) && !isMoving && canMove)
             {
                 StartPos = EndPos;
                 StartCoroutine(BlockNoiseBarDecrease());
@@ -55,6 +67,7 @@ namespace HibouGerbille
                 NoiseBarGestion();
             }
 
+
             GestionDetectionCircle();
 
         }
@@ -62,11 +75,11 @@ namespace HibouGerbille
 
         IEnumerator EnableMoving()
         {
+            gerbilAnimator.SetTrigger("Jump");
             sourceAudio.PlayOneShot(mouseSqueak);
             isMoving = true;
             StartPos = transform.position;
             EndPos = StartPos + distanceMoving;
-            JumpForward();
             yield return new WaitForSeconds(movingTime);
             isMoving = false;
             transform.position = EndPos;
@@ -94,7 +107,6 @@ namespace HibouGerbille
             if(other.gameObject.tag == "Howl" && isMoving)
             {
                 canMove = false;
-                Debug.Log("QuéPasa");
                 timelineDeath.SetActive(true);
             }
         }
@@ -103,17 +115,17 @@ namespace HibouGerbille
             if (other.gameObject.tag == "Howl" && isMoving)
             {
                 canMove = false;
-                Debug.Log("QuéPasa");
                 timelineDeath.SetActive(true);
             }
         }
 
         void NoiseBarGestion()
         {
-            noiseBar.fillAmount -= decreaseAmount;
+            noiseBar.fillAmount -= decreaseAmount * noiseBarMultiplier;
             if(noiseBar.fillAmount < .2f)
             {
                 noiseBar.fillAmount = .2f;
+                noiseBarMultiplier = 1f;
             }
         }
 
@@ -127,12 +139,6 @@ namespace HibouGerbille
             {
                 detecting = false;
             }
-
-            //if (detectionHowlCircle.fillAmount > 0.95f)
-            //{
-            //    detectionHowlCircle.fillAmount = 1f;
-
-            //}
         }
     }
 }
