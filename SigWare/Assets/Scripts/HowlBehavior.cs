@@ -12,6 +12,8 @@ namespace HibouGerbille
         [SerializeField] private AudioTabListener[] audioTab;
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private Animator animHowl;
+        [SerializeField] private Animator animCam;
+        [SerializeField] private Animator animScope;
         [SerializeField] private GameObject timelineDeath;
         [SerializeField] private GerbilBehaviour gerbilScript;
         private bool launchMusic = true;
@@ -47,20 +49,20 @@ namespace HibouGerbille
                 VolumeDown();
             }
 
-            if(!detected)
-            {
-            FillingDetectionCircle();
-            }
+            //if(!detected)
+            //{
+            //FillingDetectionCircle();
+            //}
 
-            if(exclamationFolderTurnHowl.activeInHierarchy)
-            {
-                detectionHowlCircle.fillAmount = 0f;
-                exclamationFolderNoiseBar.SetActive(false);
-            }
-            else
-            {
-            ExclamationFolderActivation();
-            }
+            //if(exclamationFolderTurnHowl.activeInHierarchy)
+            //{
+            //    detectionHowlCircle.fillAmount = 0f;
+            //    exclamationFolderNoiseBar.SetActive(false);
+            //}
+            //else
+            //{
+            //ExclamationFolderActivation();
+            //}
         }
 
         public void WaitBeforeDefaultIdle()
@@ -154,6 +156,21 @@ namespace HibouGerbille
             {
                 exclamationFolderNoiseBar.SetActive(false);
             }
+        }
+
+        public void CamShake()
+        {
+            animCam.Play ("CamShake");
+        }
+
+        public void ScopeIn()
+        {
+            animScope.Play("ScopeIn");
+        }
+
+        public void ScopeOut()
+        {
+            animScope.Play("ScopeOut");
         }
     }
 

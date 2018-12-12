@@ -39,6 +39,7 @@ namespace HibouGerbille
 
         [Header("=== Features ===")]
         [SerializeField] private AudioSource sourceAudio;
+        [SerializeField] private ParticleSystem dustParticles;
         [SerializeField] private GameObject timelineDeath;
         [SerializeField] public HowlBehavior howlScript;
 
@@ -67,8 +68,7 @@ namespace HibouGerbille
                 NoiseBarGestion();
             }
 
-
-            GestionDetectionCircle();
+            
 
         }
 
@@ -76,7 +76,6 @@ namespace HibouGerbille
         IEnumerator EnableMoving()
         {
             gerbilAnimator.SetTrigger("Jump");
-            sourceAudio.PlayOneShot(mouseSqueak);
             isMoving = true;
             StartPos = transform.position;
             EndPos = StartPos + distanceMoving;
@@ -127,18 +126,17 @@ namespace HibouGerbille
                 noiseBar.fillAmount = .2f;
                 noiseBarMultiplier = 1f;
             }
+
+            if(noiseBar.fillAmount > .8f)
+            {
+
+            }
         }
 
-        void GestionDetectionCircle()
+        public void JumpEffects()
         {
-            if (noiseBar.fillAmount > 0.6f)
-            {
-                detecting = true;
-            }
-            else
-            {
-                detecting = false;
-            }
+            dustParticles.Play();
+            sourceAudio.PlayOneShot(mouseSqueak);
         }
     }
 }
