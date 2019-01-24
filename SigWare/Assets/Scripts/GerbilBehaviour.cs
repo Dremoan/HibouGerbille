@@ -15,7 +15,7 @@ namespace HibouGerbille
         [SerializeField] private Image noiseBar;
         [HideInInspector] public float noiseBarMultiplier = 1f;
         [HideInInspector] public bool detecting;
-        private bool noiseBarDecrease = true;
+        public bool noiseBarDecrease = true;
 
         [Header("=== Gerbil Movement ===")]
         [Range(0.1f,0.5f)]
@@ -67,9 +67,6 @@ namespace HibouGerbille
             {
                 NoiseBarGestion();
             }
-
-            
-
         }
 
 
@@ -129,7 +126,8 @@ namespace HibouGerbille
 
             if(noiseBar.fillAmount > .8f)
             {
-
+                noiseBarDecrease = false;
+                StartCoroutine(howlScript.IdleDefaultBeforeTurning());
             }
         }
 
@@ -137,6 +135,12 @@ namespace HibouGerbille
         {
             dustParticles.Play();
             sourceAudio.PlayOneShot(mouseSqueak);
+        }
+
+        public void NoiseBarStop()
+        {
+            noiseBarDecrease = true;
+            noiseBar.fillAmount = .2f;
         }
     }
 }

@@ -86,10 +86,11 @@ namespace HibouGerbille
         {
             yield return new WaitForSeconds(Random.Range(1.5f, 3f));
             animHowl.SetBool("Turning", false);
+            gerbilScript.NoiseBarStop();
             launchMusic = true;
         }
 
-        IEnumerator IdleDefaultBeforeTurning()
+        public IEnumerator IdleDefaultBeforeTurning()
         {
             exclamationFolderTurnHowl.transform.localPosition = exclamationFolderTurnHowlStartPos;
             exclamationFolderTurnHowl.SetActive(true);
@@ -104,7 +105,7 @@ namespace HibouGerbille
         {
             audioSource.volume += 0.01f;
 
-            if(audioSource.volume == 1f)
+            if(audioSource.volume > 1f)
             {
                 increaseVolume = false;
                 audioSource.volume = 1f;
@@ -116,7 +117,7 @@ namespace HibouGerbille
         {
             audioSource.volume -= 0.01f;
 
-            if (audioSource.volume == 0f)
+            if (audioSource.volume < 0f)
             {
                 decreaseVolume = false;
                 audioSource.volume = 0f;
@@ -136,7 +137,7 @@ namespace HibouGerbille
 
             }
 
-            if (detectionHowlCircle.fillAmount > 0.95f && !detected)
+            if (detectionHowlCircle.fillAmount > 0.9f && !detected)
             {
                 detectionHowlCircle.fillAmount = 0f;
                 gerbilScript.noiseBarMultiplier = 5f;

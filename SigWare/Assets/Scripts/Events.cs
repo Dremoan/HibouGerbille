@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Events : MonoBehaviour {
-
-
-    [SerializeField] private UnityEvent eventInvoke;
-
-    public void InvokeEvent()
+namespace HibouGerbille
+{
+    public class Events : MonoBehaviour
     {
-        eventInvoke.Invoke();
+
+
+        [SerializeField] private UnityEvent eventInvoke;
+
+        public void InvokeEvent()
+        {
+            eventInvoke.Invoke();
+        }
     }
 }
