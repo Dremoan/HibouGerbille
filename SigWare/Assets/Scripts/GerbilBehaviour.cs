@@ -20,15 +20,17 @@ namespace HibouGerbille
         [Header("=== Gerbil Movement ===")]
         [Range(0.1f,0.5f)]
         [SerializeField] private float movingTime = 1f;
-        [SerializeField] private float returnMoveDuration;
+        [SerializeField] private Vector3 distanceMoving;
+        private float returnMoveDuration;
         [SerializeField] private AnimationCurve curveSpeed;
+        [SerializeField] private AnimationCurve curveVerticalMove;
         [SerializeField] private AudioClip mouseSqueak;
         private bool isMoving = false;
         private bool canMove = true;
         private float percentMove;
-        private Vector3 StartPos;
-        private Vector3 EndPos;
-        public Vector3 distanceMoving;
+        private float initialY;
+        private Vector3 startPos;
+        private Vector3 endPos;
 
 
         [Header("=== Gerbil Animations ===")]
@@ -46,14 +48,16 @@ namespace HibouGerbille
 
         private void Start()
         {
-            StartPos = transform.position;
-            EndPos = transform.position;
+            startPos = transform.position;
+            initialY = transform.position.y;
+            endPos = transform.position;
         }
         void Update()
         {
+            
             if (Input.GetMouseButtonUp(0) && !isMoving && canMove)
             {
-                StartPos = EndPos;
+                startPos = endPos;
                 StartCoroutine(BlockNoiseBarDecrease());
                 StartCoroutine(EnableMoving());
             }
@@ -74,17 +78,19 @@ namespace HibouGerbille
         {
             gerbilAnimator.SetTrigger("Jump");
             isMoving = true;
-            StartPos = transform.position;
-            EndPos = StartPos + distanceMoving;
+            startPos = transform.position;
+            float newX = startPos.x + distanceMoving.x;
+            float ratioedNewX = Mathf.InverseLerp(0f, 32f, newX);
+            endPos = new Vector3(newX, initialY + curveVerticalMove.Evaluate(ratioedNewX), transform.position.z);
             yield return new WaitForSeconds(movingTime);
             isMoving = false;
-            transform.position = EndPos;
+            transform.position = endPos;
             returnMoveDuration = 0;
         }
 
         IEnumerator BlockNoiseBarDecrease()
         {
-            noiseBar.fillAmount += .05f;
+            noiseBar.fillAmount += .075f;
             noiseBarDecrease = false;
             yield return new WaitForSeconds(waitBeforeNoiseBarDecrease);
             noiseBarDecrease = true;
@@ -95,12 +101,12 @@ namespace HibouGerbille
             returnMoveDuration += Time.deltaTime;
             percentMove = returnMoveDuration / movingTime;
             float timePercent = curveSpeed.Evaluate(percentMove);
-            transform.position = Vector3.Lerp(StartPos, EndPos, timePercent);
+            transform.position = Vector3.Lerp(startPos, endPos, timePercent);
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if(other.gameObject.tag == "Howl" && isMoving)
+            if(other.gameObject.GetComponent<HowlBehavior>() != null && isMoving)
             {
                 canMove = false;
                 timelineDeath.SetActive(true);
@@ -108,7 +114,7 @@ namespace HibouGerbille
         }
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.tag == "Howl" && isMoving)
+            if (other.gameObject.GetComponent<HowlBehavior>() != null && isMoving)
             {
                 canMove = false;
                 timelineDeath.SetActive(true);
@@ -142,5 +148,7 @@ namespace HibouGerbille
             noiseBarDecrease = true;
             noiseBar.fillAmount = .2f;
         }
+
+
     }
 }

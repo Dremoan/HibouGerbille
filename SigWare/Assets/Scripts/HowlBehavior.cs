@@ -101,6 +101,7 @@ namespace HibouGerbille
             detected = false;
         }
 
+
         void VolumeUp()
         {
             audioSource.volume += 0.01f;
