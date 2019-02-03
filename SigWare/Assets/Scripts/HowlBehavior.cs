@@ -13,7 +13,6 @@ namespace HibouGerbille
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private Animator animHowl;
         [SerializeField] private Animator animCam;
-        [SerializeField] private Animator animScope;
         [SerializeField] private GameObject timelineDeath;
         [SerializeField] private GerbilBehaviour gerbilScript;
         private bool launchMusic = true;
@@ -23,8 +22,6 @@ namespace HibouGerbille
 
 
         [Header("=== Detection UI ===")]
-        [SerializeField] private Image detectionHowlCircle;
-        [SerializeField] private GameObject exclamationFolderNoiseBar;
         [SerializeField] private GameObject exclamationFolderTurnHowl;
         [SerializeField] private Animator exclamationFolderAnim;
         [SerializeField] private Vector3 exclamationFolderTurnHowlStartPos;
@@ -49,20 +46,6 @@ namespace HibouGerbille
                 VolumeDown();
             }
 
-            //if(!detected)
-            //{
-            //FillingDetectionCircle();
-            //}
-
-            //if(exclamationFolderTurnHowl.activeInHierarchy)
-            //{
-            //    detectionHowlCircle.fillAmount = 0f;
-            //    exclamationFolderNoiseBar.SetActive(false);
-            //}
-            //else
-            //{
-            //ExclamationFolderActivation();
-            //}
         }
 
         public void WaitBeforeDefaultIdle()
@@ -125,55 +108,12 @@ namespace HibouGerbille
             }
         }
 
-        void FillingDetectionCircle()
-        {
-            if(gerbilScript.detecting == true)
-            {
-                detectionHowlCircle.fillAmount += 0.01f;
-            }
-            
-            if(gerbilScript.detecting == false)
-            {
-                detectionHowlCircle.fillAmount -= 0.01f;
-
-            }
-
-            if (detectionHowlCircle.fillAmount > 0.9f && !detected)
-            {
-                detectionHowlCircle.fillAmount = 0f;
-                gerbilScript.noiseBarMultiplier = 5f;
-                detected = true;
-                StopAllCoroutines();
-                StartCoroutine(IdleDefaultBeforeTurning());
-            }
-        }
-
-        void ExclamationFolderActivation()
-        {
-            if(detectionHowlCircle.fillAmount > 0.1f && !detected)
-            {
-                exclamationFolderNoiseBar.SetActive(true);
-            }
-            else
-            {
-                exclamationFolderNoiseBar.SetActive(false);
-            }
-        }
 
         public void CamShake()
         {
             animCam.Play ("CamShake");
         }
 
-        public void ScopeIn()
-        {
-            animScope.Play("ScopeIn");
-        }
-
-        public void ScopeOut()
-        {
-            animScope.Play("ScopeOut");
-        }
     }
 
     [System.Serializable]

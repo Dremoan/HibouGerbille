@@ -8,14 +8,21 @@ namespace HibouGerbille
     public class GerbilBehaviour : MonoBehaviour
     {
         [Header("=== Noise Bar Gestion ===")]
+
         [Range(0.1f, 1f)]
         [SerializeField] private float waitBeforeNoiseBarDecrease = 1f;
+
         [Range(0.0025f, 0.005f)]
         [SerializeField] private float decreaseAmount;
+
+        [Range(0.075f, 0.125f)]
+        [SerializeField] private float fillBarAmount = .075f;
+
         [SerializeField] private Image noiseBar;
         [HideInInspector] public float noiseBarMultiplier = 1f;
         [HideInInspector] public bool detecting;
         public bool noiseBarDecrease = true;
+
 
         [Header("=== Gerbil Movement ===")]
         [Range(0.1f,0.5f)]
@@ -90,7 +97,7 @@ namespace HibouGerbille
 
         IEnumerator BlockNoiseBarDecrease()
         {
-            noiseBar.fillAmount += .075f;
+            noiseBar.fillAmount += fillBarAmount;
             noiseBarDecrease = false;
             yield return new WaitForSeconds(waitBeforeNoiseBarDecrease);
             noiseBarDecrease = true;
