@@ -103,7 +103,7 @@ namespace GRP18_TheGerbilAndTheOwl
 
         public void OwlEyesRandomize()
         {
-            OwlEyes.SetInteger("RandomIdle", Random.Range(1, 2));
+            OwlEyes.SetInteger("RandomIdle", Random.Range(1, 3));
         }
 
     }
