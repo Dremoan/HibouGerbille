@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace HibouGerbille
+namespace GRP18_TheGerbilAndTheOwl
 {
     public class Ground : MonoBehaviour
     {

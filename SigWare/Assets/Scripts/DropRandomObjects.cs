@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HibouGerbille
+namespace GRP18_TheGerbilAndTheOwl
 {
+    [System.Serializable]
     public class DropRandomObjects : MonoBehaviour
     {
 

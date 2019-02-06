@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Cinemachine;
 
-namespace HibouGerbille
+namespace GRP18_TheGerbilAndTheOwl
 {
+    [System.Serializable]
     public class GerbilBehaviour : MonoBehaviour
     {
         [Header("=== Noise Bar Gestion ===")]
@@ -17,7 +19,6 @@ namespace HibouGerbille
 
         [Range(0.075f, 0.125f)]
         [SerializeField] private float fillBarAmount = .075f;
-
         [SerializeField] private Image noiseBar;
         [HideInInspector] public float noiseBarMultiplier = 1f;
         [HideInInspector] public bool detecting;
@@ -33,7 +34,7 @@ namespace HibouGerbille
         [SerializeField] private AnimationCurve curveVerticalMove;
         [SerializeField] private AudioClip mouseSqueak;
         private bool isMoving = false;
-        private bool canMove = true;
+        [HideInInspector] public bool canMove = true;
         private float percentMove;
         private float initialY;
         private Vector3 startPos;
@@ -50,7 +51,15 @@ namespace HibouGerbille
         [SerializeField] private AudioSource sourceAudio;
         [SerializeField] private ParticleSystem dustParticles;
         [SerializeField] private GameObject timelineDeath;
-        [SerializeField] public HowlBehavior howlScript;
+        [SerializeField] public OwlBehavior owlScript;
+
+        [Header("=== TutoSequence ===")]
+        [SerializeField] private int countTillTimeline;
+        [SerializeField] private bool tutoSequence = true;
+        [SerializeField] private CinemachineVirtualCamera camBeginning;
+        [SerializeField] private GameObject timelineTutorial;
+        [SerializeField] private float timelineDuration = 6f;
+
 
 
         private void Start()
@@ -64,6 +73,10 @@ namespace HibouGerbille
             
             if (Input.GetMouseButtonUp(0) && !isMoving && canMove)
             {
+                if (tutoSequence)
+                {
+                    countTillTimeline += 1;
+                }
                 startPos = endPos;
                 StartCoroutine(BlockNoiseBarDecrease());
                 StartCoroutine(EnableMoving());
@@ -78,6 +91,11 @@ namespace HibouGerbille
             {
                 NoiseBarGestion();
             }
+
+            if (countTillTimeline == 5f)
+            {
+                EndTutorial();
+            }
         }
 
 
@@ -87,7 +105,7 @@ namespace HibouGerbille
             isMoving = true;
             startPos = transform.position;
             float newX = startPos.x + distanceMoving.x;
-            float ratioedNewX = Mathf.InverseLerp(0f, 32f, newX);
+            float ratioedNewX = Mathf.InverseLerp(4f, 32f, newX);
             endPos = new Vector3(newX, initialY + curveVerticalMove.Evaluate(ratioedNewX), transform.position.z);
             yield return new WaitForSeconds(movingTime);
             isMoving = false;
@@ -103,17 +121,24 @@ namespace HibouGerbille
             noiseBarDecrease = true;
         }
 
+        IEnumerator ShowingOwlPattern()
+        {
+            yield return new WaitForSeconds(timelineDuration -2f);
+            owlScript.tutoSequence = false;
+        }
+
         void JumpForward()
         {
             returnMoveDuration += Time.deltaTime;
             percentMove = returnMoveDuration / movingTime;
             float timePercent = curveSpeed.Evaluate(percentMove);
             transform.position = Vector3.Lerp(startPos, endPos, timePercent);
+
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if(other.gameObject.GetComponent<HowlBehavior>() != null && isMoving)
+            if(other.gameObject.GetComponent<OwlBeam>() != null && isMoving)
             {
                 canMove = false;
                 timelineDeath.SetActive(true);
@@ -121,7 +146,7 @@ namespace HibouGerbille
         }
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.GetComponent<HowlBehavior>() != null && isMoving)
+            if (other.gameObject.GetComponent<OwlBeam>() != null && isMoving)
             {
                 canMove = false;
                 timelineDeath.SetActive(true);
@@ -137,10 +162,9 @@ namespace HibouGerbille
                 noiseBarMultiplier = 1f;
             }
 
-            if(noiseBar.fillAmount > .8f)
+            if(noiseBar.fillAmount > .95f)
             {
-                noiseBarDecrease = false;
-                StartCoroutine(howlScript.IdleDefaultBeforeTurning());
+                StartCoroutine(owlScript.IdleDefaultBeforeTurning());
             }
         }
 
@@ -156,6 +180,14 @@ namespace HibouGerbille
             noiseBar.fillAmount = .2f;
         }
 
-
+        private void EndTutorial()
+        {
+            countTillTimeline = 0;
+            canMove = false;
+            tutoSequence = false;
+            camBeginning.m_Priority = 9;
+            timelineTutorial.SetActive(true);
+            StartCoroutine(ShowingOwlPattern());
+        }
     }
 }
