@@ -9,22 +9,7 @@ namespace GRP18_TheGerbilAndTheOwl
     [System.Serializable]
     public class GerbilBehaviour : MonoBehaviour
     {
-        [Header("=== Noise Bar Gestion ===")]
-
-        [Range(0.1f, 1f)]
-        [SerializeField] private float waitBeforeNoiseBarDecrease = 1f;
-
-        [Range(0.0025f, 0.005f)]
-        [SerializeField] private float decreaseAmount;
-
-        [Range(0.075f, 0.125f)]
-        [SerializeField] private float fillBarAmount = .075f;
-        [SerializeField] private Image noiseBar;
-        [HideInInspector] public float noiseBarMultiplier = 1f;
-        [HideInInspector] public bool detecting;
-        public bool noiseBarDecrease = true;
-
-
+        
         [Header("=== Gerbil Movement ===")]
         [Range(0.1f,0.5f)]
         [SerializeField] private float movingTime = 1f;
@@ -46,7 +31,6 @@ namespace GRP18_TheGerbilAndTheOwl
         private int countPoses;
 
 
-
         [Header("=== Features ===")]
         [SerializeField] private AudioSource sourceAudio;
         [SerializeField] private ParticleSystem dustParticles;
@@ -60,7 +44,10 @@ namespace GRP18_TheGerbilAndTheOwl
         [SerializeField] private GameObject timelineTutorial;
         [SerializeField] private float timelineDuration = 6f;
 
-
+        [Header("=== WinSequence ===")]
+        [SerializeField] private GameObject timelineWin;
+        [SerializeField] private float delayCoroutineTimeline;
+        private bool gameEnded;
 
         private void Start()
         {
@@ -70,7 +57,10 @@ namespace GRP18_TheGerbilAndTheOwl
         }
         void Update()
         {
-            
+            if(transform.position.x > 26f && !gameEnded)
+            {
+                EndGame();
+            }
             if (Input.GetMouseButtonUp(0) && !isMoving && canMove)
             {
                 if (tutoSequence)
@@ -78,18 +68,12 @@ namespace GRP18_TheGerbilAndTheOwl
                     countTillTimeline += 1;
                 }
                 startPos = endPos;
-                StartCoroutine(BlockNoiseBarDecrease());
                 StartCoroutine(EnableMoving());
             }
 
             if(isMoving)
             {
                 JumpForward();
-            }
-
-            if(noiseBarDecrease)
-            {
-                NoiseBarGestion();
             }
 
             if (countTillTimeline == 5f)
@@ -105,20 +89,12 @@ namespace GRP18_TheGerbilAndTheOwl
             isMoving = true;
             startPos = transform.position;
             float newX = startPos.x + distanceMoving.x;
-            float ratioedNewX = Mathf.InverseLerp(4f, 32f, newX);
+            float ratioedNewX = Mathf.InverseLerp(4f, 30f, newX);
             endPos = new Vector3(newX, initialY + curveVerticalMove.Evaluate(ratioedNewX), transform.position.z);
             yield return new WaitForSeconds(movingTime);
             isMoving = false;
             transform.position = endPos;
             returnMoveDuration = 0;
-        }
-
-        IEnumerator BlockNoiseBarDecrease()
-        {
-            noiseBar.fillAmount += fillBarAmount;
-            noiseBarDecrease = false;
-            yield return new WaitForSeconds(waitBeforeNoiseBarDecrease);
-            noiseBarDecrease = true;
         }
 
         IEnumerator ShowingOwlPattern()
@@ -127,6 +103,15 @@ namespace GRP18_TheGerbilAndTheOwl
             owlScript.tutoSequence = false;
         }
 
+        IEnumerator WinTimelineCoroutine()
+        {
+            yield return new WaitForSeconds(delayCoroutineTimeline);
+            StartCoroutine(EnableMoving());
+            yield return new WaitForSeconds(.1f);
+            StartCoroutine(EnableMoving());
+            yield return new WaitForSeconds(.1f);
+            StartCoroutine(EnableMoving());
+        }
         void JumpForward()
         {
             returnMoveDuration += Time.deltaTime;
@@ -153,31 +138,10 @@ namespace GRP18_TheGerbilAndTheOwl
             }
         }
 
-        void NoiseBarGestion()
-        {
-            noiseBar.fillAmount -= decreaseAmount * noiseBarMultiplier;
-            if(noiseBar.fillAmount < .2f)
-            {
-                noiseBar.fillAmount = .2f;
-                noiseBarMultiplier = 1f;
-            }
-
-            if(noiseBar.fillAmount > .95f)
-            {
-                StartCoroutine(owlScript.IdleDefaultBeforeTurning());
-            }
-        }
-
         public void JumpEffects()
         {
             dustParticles.Play();
             sourceAudio.PlayOneShot(mouseSqueak);
-        }
-
-        public void NoiseBarStop()
-        {
-            noiseBarDecrease = true;
-            noiseBar.fillAmount = .2f;
         }
 
         private void EndTutorial()
@@ -188,6 +152,17 @@ namespace GRP18_TheGerbilAndTheOwl
             camBeginning.m_Priority = 9;
             timelineTutorial.SetActive(true);
             StartCoroutine(ShowingOwlPattern());
+        }
+
+        private void EndGame()
+        {
+            owlScript.detectionGameObject.SetActive(false);
+            gameEnded = true;
+            canMove = false;
+            timelineWin.SetActive(true);
+            owlScript.EndGame();
+            owlScript.enabled = false;
+            StartCoroutine(WinTimelineCoroutine());
         }
     }
 }

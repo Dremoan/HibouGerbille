@@ -9,40 +9,26 @@ namespace GRP18_TheGerbilAndTheOwl
     public class OwlBehavior : MonoBehaviour
     {
         [Header("=== References ===")]
-        [SerializeField] private AudioSource audioSource;
         [SerializeField] private Animator animOwl;
         [HideInInspector] public Animator OwlEyes;
         [SerializeField] private Animator animCam;
         [SerializeField] private GerbilBehaviour gerbilScript;
-        private int randomClipItem;
-        private bool increaseVolume = false;
-        private bool decreaseVolume = false;
-
 
         [Header("=== Detection UI ===")]
-        [SerializeField] private GameObject detectionGameObject;
+        public GameObject detectionGameObject;
         [SerializeField] private float minValue;
         [SerializeField] private float maxValue;
  
 
         [Header("=== TutoSequence ===")]
         public bool tutoSequence = true;
+        private bool gameEnded;
 
         void Update()
         {
-            if (!tutoSequence)
+            if (!tutoSequence && !gameEnded)
             {
             StartCoroutine(TurnBackCoroutine());
-            }
-
-            if(increaseVolume)
-            {
-                VolumeUp();
-            }
-
-            if(decreaseVolume)
-            {
-                VolumeDown();
             }
 
         }
@@ -71,31 +57,6 @@ namespace GRP18_TheGerbilAndTheOwl
             animOwl.SetBool("Turning", true);
         }
 
-
-        void VolumeUp()
-        {
-            audioSource.volume += 0.01f;
-
-            if(audioSource.volume > 1f)
-            {
-                increaseVolume = false;
-                audioSource.volume = 1f;
-            }
-
-        }
-
-        void VolumeDown()
-        {
-            audioSource.volume -= 0.01f;
-
-            if (audioSource.volume < 0f)
-            {
-                decreaseVolume = false;
-                audioSource.volume = 0f;
-            }
-        }
-
-
         public void CamShake()
         {
             animCam.Play ("CamShake");
@@ -106,6 +67,11 @@ namespace GRP18_TheGerbilAndTheOwl
             OwlEyes.SetInteger("RandomIdle", Random.Range(1, 3));
         }
 
+        public void EndGame()
+        {
+            StopAllCoroutines();
+            gameEnded = true;
+        }
     }
 
  

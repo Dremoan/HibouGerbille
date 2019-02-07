@@ -5496,7 +5496,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 363bb671d76d6414a845a35deb43bced, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 534669907}
   animOwl: {fileID: 284450473}
   OwlEyes: {fileID: 1654304854}
   animCam: {fileID: 117422141}
@@ -6371,7 +6370,7 @@ MonoBehaviour:
   detecting: 0
   noiseBarDecrease: 1
   movingTime: 0.1
-  distanceMoving: {x: 0.5, y: 0, z: 0}
+  distanceMoving: {x: 0.4, y: 0, z: 0}
   curveSpeed:
     serializedVersion: 2
     m_Curve:
@@ -6409,13 +6408,13 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.30104035
+      time: 0.25
       value: 1.5
-      inSlope: -3.6287198
-      outSlope: -3.6287198
+      inSlope: 0.06493564
+      outSlope: 0.06493564
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.20889348
+      inWeight: 0.13878913
       outWeight: 0.12656973
     - serializedVersion: 3
       time: 0.475
@@ -6427,7 +6426,7 @@ MonoBehaviour:
       inWeight: 0.38420817
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.5
+      time: 0.6
       value: 0
       inSlope: -0
       outSlope: -0
