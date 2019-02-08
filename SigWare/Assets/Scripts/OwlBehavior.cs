@@ -65,7 +65,7 @@ namespace GRP18_TheGerbilAndTheOwl
         public IEnumerator IdleDefaultBeforeTurning()
         {
             detectionGameObject.SetActive(true);
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.5f);
             detectionGameObject.SetActive(false);
             animOwl.SetBool("Turning", true);
         }
