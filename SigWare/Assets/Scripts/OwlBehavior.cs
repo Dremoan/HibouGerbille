@@ -23,6 +23,8 @@ namespace GRP18_TheGerbilAndTheOwl
         [Header("=== TutoSequence ===")]
         public bool tutoSequence = true;
         private bool gameEnded;
+        private int tutoCount = 0;
+        [SerializeField] private Animator indicationsTuto;
 
         void Update()
         {
@@ -41,12 +43,23 @@ namespace GRP18_TheGerbilAndTheOwl
             StartCoroutine(IdleDefaultBeforeTurning());
         }
 
+        public IEnumerator TurnBackCoroutineTuto()
+        {
+            yield return new WaitForSeconds(Random.Range(minValue, maxValue));
+            StartCoroutine(IdleDefaultBeforeTurning());
+        }
+
         public void stopWatchingPath()
         {
             animOwl.SetBool("Turning", false);
             OwlEyes.SetInteger("RandomIdle", 0);
             gerbilScript.canMove = true;
             tutoSequence = false;
+            if(tutoCount < 1)
+            {
+                tutoCount += 1;
+                indicationsTuto.Play("Start");
+            }
         }
 
         public IEnumerator IdleDefaultBeforeTurning()

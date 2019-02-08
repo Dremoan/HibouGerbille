@@ -63,6 +63,7 @@ namespace GRP18_TheGerbilAndTheOwl
             }
             if (Input.GetMouseButtonUp(0) && !isMoving && canMove)
             {
+                gerbilAnimator.SetInteger("PoseCount", 0);
                 if (tutoSequence)
                 {
                     countTillTimeline += 1;
@@ -100,16 +101,16 @@ namespace GRP18_TheGerbilAndTheOwl
         IEnumerator ShowingOwlPattern()
         {
             yield return new WaitForSeconds(timelineDuration -2f);
-            owlScript.tutoSequence = false;
+            StartCoroutine(owlScript.TurnBackCoroutineTuto());
         }
 
         IEnumerator WinTimelineCoroutine()
         {
             yield return new WaitForSeconds(delayCoroutineTimeline);
             StartCoroutine(EnableMoving());
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(.25f);
             StartCoroutine(EnableMoving());
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(.25f);
             StartCoroutine(EnableMoving());
         }
         void JumpForward()
