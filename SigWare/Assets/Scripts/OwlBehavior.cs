@@ -52,6 +52,8 @@ namespace GRP18_TheGerbilAndTheOwl
         public void stopWatchingPath()
         {
             animOwl.SetBool("Turning", false);
+            if(!gameEnded)
+            {
             OwlEyes.SetInteger("RandomIdle", 0);
             gerbilScript.canMove = true;
             tutoSequence = false;
@@ -59,6 +61,7 @@ namespace GRP18_TheGerbilAndTheOwl
             {
                 tutoCount += 1;
                 indicationsTuto.Play("Start");
+            }
             }
         }
 
