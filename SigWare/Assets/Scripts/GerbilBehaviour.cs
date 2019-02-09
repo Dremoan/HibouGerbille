@@ -77,6 +77,10 @@ namespace GRP18_TheGerbilAndTheOwl
                 JumpForward();
             }
 
+            if(!isMoving && owlScript.turned == true)
+            {
+                gerbilAnimator.SetInteger("PoseCount", Random.Range(1,2));
+            }
             if (countTillTimeline == 5f)
             {
                 EndTutorial();
@@ -86,7 +90,7 @@ namespace GRP18_TheGerbilAndTheOwl
 
         IEnumerator EnableMoving()
         {
-            gerbilAnimator.SetTrigger("Jump");
+            gerbilAnimator.Play("FiJump");
             isMoving = true;
             startPos = transform.position;
             float newX = startPos.x + distanceMoving.x;

@@ -13,6 +13,7 @@ namespace GRP18_TheGerbilAndTheOwl
         [HideInInspector] public Animator OwlEyes;
         [SerializeField] private Animator animCam;
         [SerializeField] private GerbilBehaviour gerbilScript;
+        [HideInInspector] public bool turned;
 
         [Header("=== Detection UI ===")]
         public GameObject detectionGameObject;
@@ -51,6 +52,8 @@ namespace GRP18_TheGerbilAndTheOwl
 
         public void stopWatchingPath()
         {
+            turned = false;
+            gerbilScript.GetComponent<Animator>().SetInteger("PoseCount", 0);
             animOwl.SetBool("Turning", false);
             if(!gameEnded)
             {
@@ -58,10 +61,10 @@ namespace GRP18_TheGerbilAndTheOwl
             gerbilScript.canMove = true;
             tutoSequence = false;
             if(tutoCount < 1)
-            {
+                {
                 tutoCount += 1;
                 indicationsTuto.Play("Start");
-            }
+                }
             }
         }
 
@@ -71,6 +74,7 @@ namespace GRP18_TheGerbilAndTheOwl
             yield return new WaitForSeconds(1.5f);
             detectionGameObject.SetActive(false);
             animOwl.SetBool("Turning", true);
+            turned = true;
         }
 
         public void CamShake()
