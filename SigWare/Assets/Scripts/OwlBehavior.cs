@@ -2,30 +2,57 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering.PostProcessing;
 
-namespace GRP18_TheGerbilAndTheOwl
+namespace GRP18
 {
     [System.Serializable]
     public class OwlBehavior : MonoBehaviour
     {
-        [Header("=== References ===")]
-        [SerializeField] private Animator animOwl;
-        [HideInInspector] public Animator OwlEyes;
-        [SerializeField] private Animator animCam;
+        [Header("=== Scripts ===")]
+        [SerializeField] private JaugeDecreasingDefeat jaugeScript;
         [SerializeField] private GerbilBehaviour gerbilScript;
-        [HideInInspector] public bool turned;
+        [SerializeField] private GameManager manager;
+        [SerializeField] private PostProcessVolume postPro;
 
-        [Header("=== Detection UI ===")]
+        [Header("=== Audio ===")]
+        [SerializeField] private AudioSource sourceAudio;
+        [SerializeField] private AudioSource musicAudioSource;
+        [SerializeField] private AudioClip screech;
+        [SerializeField] private AudioClip woosh1;
+        [SerializeField] private AudioClip woosh2;
+
+        [Header("=== Animation ===")]
+        [SerializeField] private Animator indicationsTuto;
+        [SerializeField] private Animator animOwl;
+        [SerializeField] public Animator owlEyes;
+        [SerializeField] private Animator animCam;
+
+        [Header("=== Game Objects ===")]
+        [SerializeField] private GameObject owlFaisceauObj;
+        [SerializeField] private GameObject owlBeamObj;
+        [SerializeField] private GameObject owlEyesObj;
+        [SerializeField] private GameObject blueBackground;
+        [SerializeField] private GameObject redBackground;
+        [SerializeField] private GameObject dontMove;
+        [SerializeField] private GameObject sneak;
         public GameObject detectionGameObject;
+ 
+        [Header("=== Floats ===")]
         [SerializeField] private float minValue;
         [SerializeField] private float maxValue;
- 
-
-        [Header("=== TutoSequence ===")]
-        public bool tutoSequence = true;
-        private bool gameEnded;
         private int tutoCount = 0;
-        [SerializeField] private Animator indicationsTuto;
+
+        [Header("=== Bools ===")]
+        public bool tutoSequence = true;
+        public bool turned;
+        private bool gameEnded;
+        
+
+        private void Start()
+        {
+            BlueBackground();
+        }
 
         void Update()
         {
@@ -47,25 +74,38 @@ namespace GRP18_TheGerbilAndTheOwl
         public IEnumerator TurnBackCoroutineTuto()
         {
             yield return new WaitForSeconds(Random.Range(minValue, maxValue));
-            StartCoroutine(IdleDefaultBeforeTurning());
+            StartCoroutine(IdleDefaultBeforeTurningTuto());
         }
 
-        public void stopWatchingPath()
+        public void StopWatchingPath()
         {
+            if(gameEnded)
+            {
+                owlEyesObj.SetActive(false);
+            }
+
+
             turned = false;
-            gerbilScript.GetComponent<Animator>().SetInteger("PoseCount", 0);
             animOwl.SetBool("Turning", false);
+
+
             if(!gameEnded)
             {
-            OwlEyes.SetInteger("RandomIdle", 0);
+            owlEyes.SetInteger("RandomIdle", 0);
             gerbilScript.canMove = true;
             tutoSequence = false;
+
+
             if(tutoCount < 1)
                 {
                 tutoCount += 1;
-                indicationsTuto.Play("Start");
+                jaugeScript.launchDecrease = true;
+                StartCoroutine(SneakUIAppear());
+                musicAudioSource.Play();
                 }
             }
+
+
         }
 
         public IEnumerator IdleDefaultBeforeTurning()
@@ -77,6 +117,16 @@ namespace GRP18_TheGerbilAndTheOwl
             turned = true;
         }
 
+        public IEnumerator IdleDefaultBeforeTurningTuto()
+        {
+            detectionGameObject.SetActive(true);
+            yield return new WaitForSeconds(1.5f);
+            detectionGameObject.SetActive(false);
+            animOwl.SetBool("Turning", true);
+            dontMove.SetActive(true);
+            turned = true;
+        }
+
         public void CamShake()
         {
             animCam.Play ("CamShake");
@@ -84,13 +134,80 @@ namespace GRP18_TheGerbilAndTheOwl
 
         public void OwlEyesRandomize()
         {
-            OwlEyes.SetInteger("RandomIdle", Random.Range(1, 3));
+            gerbilScript.exclamationSurprised.SetActive(true);
+            owlEyes.SetInteger("RandomIdle", Random.Range(1, 3));
         }
 
-        public void EndGame()
+        public void EndGameVictory()
         {
             StopAllCoroutines();
             gameEnded = true;
+            StopWatchingPath();
+        }
+
+        public void EndGameDefeat()
+        {
+            StopAllCoroutines();
+            gameEnded = true;
+
+        }
+
+        public void DisableOwlEyes()
+        {
+            owlEyesObj.SetActive(false);
+        }
+
+        public void Defeat()
+        {
+            manager.Defaite();
+        }
+
+        public void ScreechSound()
+        {
+            sourceAudio.pitch = 1f;
+            sourceAudio.PlayOneShot(screech);
+            StartCoroutine(WeightPostProIncrease());
+        }
+
+        public void WooshSound1()
+        {
+            sourceAudio.pitch = 2.5f;
+            sourceAudio.PlayOneShot(woosh1);
+        }
+
+        public void WooshSound2()
+        {
+            sourceAudio.pitch = 2f;
+            sourceAudio.PlayOneShot(woosh2);
+        }
+
+
+        IEnumerator WeightPostProIncrease()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                postPro.weight += 0.1f;
+                yield return null;
+            }
+        }
+
+        IEnumerator SneakUIAppear()
+        {
+            dontMove.GetComponent<Animator>().SetTrigger("FadeOut");
+            yield return new WaitForSeconds(.25f);
+            sneak.SetActive(true);
+        }
+
+        public void RedBackground()
+        {
+            blueBackground.SetActive(false);
+            redBackground.SetActive(true);
+        }
+
+        public void BlueBackground()
+        {
+            redBackground.SetActive(false);
+            blueBackground.SetActive(true);
         }
     }
 
